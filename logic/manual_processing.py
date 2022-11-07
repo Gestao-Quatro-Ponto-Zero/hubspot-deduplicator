@@ -29,6 +29,8 @@ def manual_processing(similarity: int, similirity_filter: int, hubspot_access_to
     except FileNotFoundError:
         temp_deduplicator = CompaniesDeduplicator(BASE_CSV)
         
+    continue_df = False
+        
     if len(df_base_csv) != len(temp_deduplicator.raw_df):
         print("[reverse bold]Já tem um Mergin em Execução, deseja continua-lo? Não é possível recuperar caso escolha a resposta negativa. ")
         continue_df = typer.confirm("Deseja Continuar?")
