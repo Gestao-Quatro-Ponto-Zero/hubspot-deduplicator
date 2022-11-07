@@ -33,8 +33,8 @@ class CompaniesDeduplicator:
         self.raw_df["company_id"] = self.raw_df["company_id"].astype(int)
         self.raw_df["createdate"] = pd.to_datetime(self.raw_df["createdate"])
         self.raw_df["last_activity_date"] = pd.to_datetime(self.raw_df["last_activity_date"])
-        self.raw_df["createdate_delta"] = pd.Timestamp.now() - self.raw_df["createdate"]
-        self.raw_df["last_activity_delta"] = pd.Timestamp.now() - self.raw_df["last_activity_date"]
+        self.raw_df["createdate_delta"] = pd.Timestamp.today().date() - self.raw_df["createdate"].dt.date
+        self.raw_df["last_activity_delta"] = pd.Timestamp.today().date() - self.raw_df["last_activity_date"].dt.date
         self.raw_df["createdate_delta"] = self.raw_df["createdate_delta"].dt.days
         self.raw_df["last_activity_delta"] = self.raw_df["last_activity_delta"].dt.days
         self.raw_df["createdate"] = self.raw_df["createdate"].dt.date

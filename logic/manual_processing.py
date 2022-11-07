@@ -1,5 +1,6 @@
 
 from doctest import master
+from multiprocessing.sharedctypes import Value
 from app import HubspotCompaniesService,CompaniesDeduplicator
 import typer
 from rich import print
@@ -52,14 +53,19 @@ def manual_processing(similarity: int, similirity_filter: int, hubspot_access_to
             key_series=pd.Series(value[0])
             key_id=pd.Series(value[1])
             
-            matched_df = CompaniesDeduplicator.get_matched_df(
-                key_series = key_series,
-                key_ids = key_id,
-                duplicated_series=all_series,
-                duplicated_ids=all_ids,
-                similarity_filter=similirity_filter,
-                min_similarity=similarity
-            )
+            try: 
+                matched_df = CompaniesDeduplicator.get_matched_df(
+                    key_series = key_series,
+                    key_ids = key_id,
+                    duplicated_series=all_series,
+                    duplicated_ids=all_ids,
+                    similarity_filter=similirity_filter,
+                    min_similarity=similarity
+                )
+            except ValueError:
+                print("[red reverse bold] Error on Value String")
+                continue
+        
             if len(matched_df) == 0:
                 print(f"[reverse purple]SEM DADOS DUPLICADOS PARA:[/reverse purple] [reverse dodger_blue2]{key_series.values[0]}[/reverse dodger_blue2]")
                 excluded_ids.append(value[1])
@@ -115,6 +121,8 @@ def manual_processing(similarity: int, similirity_filter: int, hubspot_access_to
                     excluded_ids.append(values[1])
                     total += 1
     except Exception as e:
+        master_df = master_df[master_df["company_id"].isin(excluded_ids)==False]
+        master_df.to_csv(TEMP_CSV)
         raise e
     finally:
         if len(excluded_ids) > 1:
